@@ -7,6 +7,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -88,14 +89,23 @@ public class VerticalSlabBlock extends Block implements Waterloggable {
 			FluidState fluidState = ctx.getWorld().getFluidState(blockPos);
 			BlockState blockState2 = getDefaultState().with(TYPE, SlabType.DOUBLE).with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
 			Direction direction = ctx.getSide();
-			switch (direction) {
+			return switch (direction) {
 				case NORTH -> blockState2.with(TYPE, SlabType.TOP);
 				case SOUTH -> blockState2.with(TYPE, SlabType.BOTTOM);
 				case EAST -> blockState2.with(TYPE, SlabType.TOP).with(EAST, true);
 				case WEST -> blockState2.with(TYPE, SlabType.BOTTOM).with(EAST, true);
-			}
-			// TODO
-			return blockState2.with(WATERLOGGED, false);
+				// TODO
+				default -> {
+					var playerFacing = ctx.getPlayerFacing();
+					yield switch (playerFacing) {
+						case NORTH -> blockState2.with(TYPE, SlabType.TOP);
+						case SOUTH -> blockState2.with(TYPE, SlabType.BOTTOM);
+						case EAST -> blockState2.with(TYPE, SlabType.TOP).with(EAST, true);
+						case WEST -> blockState2.with(TYPE, SlabType.BOTTOM).with(EAST, true);
+						default -> blockState2;
+					};
+				}
+			};
 		}
 	}
 
@@ -135,5 +145,17 @@ public class VerticalSlabBlock extends Block implements Waterloggable {
 		return type == NavigationType.WATER && world.getFluidState(pos).isIn(FluidTags.WATER);
 	}
 
-
+	@Override
+	public boolean canReplace(BlockState state, ItemPlacementContext context) {
+		ItemStack itemStack = context.getStack();
+		SlabType slabType = state.get(TYPE);
+		if (slabType == SlabType.DOUBLE || !itemStack.isOf(this.asItem())) {
+			return false;
+		} else if (context.canReplaceExisting()) {
+			//TODO
+			return false;
+		} else {
+			return true;
+		}
+	}
 }

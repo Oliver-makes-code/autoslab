@@ -18,8 +18,7 @@
 		},
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
-			"init": "olivermakesco.de.autoslab.AutoSlabMod",
-			"client_init": "olivermakesco.de.autoslab.client.AutoSlabClient"
+			"init": "olivermakesco.de.autoslab.AutoSlabMod"
 		},
 		"depends": [
 			{
