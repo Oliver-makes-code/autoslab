@@ -28,12 +28,12 @@ public class VerticalSlabBlock extends Block implements Waterloggable {
 
 	public static final VoxelShape NORTH_SHAPE = createCuboidShape(0, 0, 8, 16, 16, 16);
 	public static final VoxelShape SOUTH_SHAPE = createCuboidShape(0, 0, 0, 16, 16, 8);
-	public static final VoxelShape EAST_SHAPE = createCuboidShape(8, 0, 0, 16, 16, 16);
-	public static final VoxelShape WEST_SHAPE = createCuboidShape(0, 0, 0, 8, 16, 16);
+	public static final VoxelShape EAST_SHAPE = createCuboidShape(0, 0, 0, 8, 16, 16);
+	public static final VoxelShape WEST_SHAPE = createCuboidShape(8, 0, 0, 16, 16, 16);
 
-	public final Block parent;
+	public final SlabBlock parent;
 
-	public VerticalSlabBlock(Settings settings, Block parent) {
+	public VerticalSlabBlock(Settings settings, SlabBlock parent) {
 		super(settings);
 		setDefaultState(
 				getDefaultState()
@@ -98,10 +98,10 @@ public class VerticalSlabBlock extends Block implements Waterloggable {
 				default -> {
 					var playerFacing = ctx.getPlayerFacing();
 					yield switch (playerFacing) {
-						case NORTH -> blockState2.with(TYPE, SlabType.TOP);
-						case SOUTH -> blockState2.with(TYPE, SlabType.BOTTOM);
-						case EAST -> blockState2.with(TYPE, SlabType.TOP).with(EAST, true);
-						case WEST -> blockState2.with(TYPE, SlabType.BOTTOM).with(EAST, true);
+						case NORTH -> blockState2.with(TYPE, SlabType.BOTTOM);
+						case SOUTH -> blockState2.with(TYPE, SlabType.TOP);
+						case EAST -> blockState2.with(TYPE, SlabType.BOTTOM).with(EAST, true);
+						case WEST -> blockState2.with(TYPE, SlabType.TOP).with(EAST, true);
 						default -> blockState2;
 					};
 				}

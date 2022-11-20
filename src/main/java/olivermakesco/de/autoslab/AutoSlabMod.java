@@ -2,6 +2,7 @@ package olivermakesco.de.autoslab;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.item.BlockItem;
@@ -28,69 +29,33 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AutoSlabMod implements ModInitializer, ResourcePackRegistrationContext.Callback {
+public class AutoSlabMod implements ModInitializer {
 	public static final String MODID = "autoslab";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 	public static final HashMap<Identifier, VerticalSlabBlock> GENERATED_BLOCKS = new HashMap<>();
 	public static final HashMap<Identifier, BlockItem> GENERATED_ITEMS = new HashMap<>();
-	public static final Gson gson = new Gson();
+	public static final VerticalSlabBlock dummyBlock = new VerticalSlabBlock(QuiltBlockSettings.copyOf(Blocks.OAK_SLAB), (SlabBlock)Blocks.OAK_SLAB);
 
 	@Override
 	public void onInitialize(ModContainer mod) {
+		Registry.register(Registry.BLOCK, new Identifier(MODID, "slab"), dummyBlock);
 		RegistryMonitor.create(Registry.BLOCK).forAll(blockCtx -> {
 			var block = blockCtx.value();
-			if (!(block instanceof SlabBlock)) return;
+			if (!(block instanceof SlabBlock slabBlock)) return;
 			var id = blockCtx.id();
 			var extendedId = extend(id);
 			LOGGER.info("Registering vertical slab: "+id+" => "+extendedId);
-			var verticalSlab = new VerticalSlabBlock(QuiltBlockSettings.copyOf(block), block);
+			var verticalSlab = new VerticalSlabBlock(QuiltBlockSettings.copyOf(block), slabBlock);
 			var item = new BlockItem(verticalSlab, new QuiltItemSettings());
 			Registry.register(Registry.BLOCK, extendedId, verticalSlab);
 			GENERATED_BLOCKS.put(id, verticalSlab);
 			Registry.register(Registry.ITEM, extendedId, item);
 			GENERATED_ITEMS.put(id, item);
 		});
-		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).getRegisterDefaultResourcePackEvent().register(this);
-	}
 
-	public static final String BLOCKSTATE_BASE = """
-			{
-			  "variants": {
-			    "type=bottom,east=false": {
-			      "model": "%bottom_north%"
-			    },
-			    "type=bottom,east=true": {
-			      "model": "%bottom_east%"
-			    },
-			    "type=double": {
-			      "model": "%double%"
-			    },
-			    "type=top,east=false": {
-			      "model": "%top_north%"
-			    },
-			    "type=top,east=true": {
-			      "model": "%top_east%"
-			    }
-			  }
-			}
-			""";
-
-	@Override
-	public void onRegisterPack(@NotNull ResourcePackRegistrationContext context) {
-		LOGGER.info("Registering resource pack");
-		var manager = context.resourceManager();
-		if (!(manager instanceof MultiPackResourceManager multiManager)) return;
-		var pack = new InMemoryResourcePack.Named("AutoSlab resources");
-		for (var id : GENERATED_BLOCKS.keySet()) {
-			var extended = extend(id);
-		}
-		context.addResourcePack(pack);
 	}
 
 	public static Identifier extend(Identifier base) {
 		return new Identifier(MODID, "generated/"+base.getNamespace()+"/"+base.getPath());
-	}
-	public static Identifier blockstate(Identifier base) {
-		return new Identifier(base.getNamespace(), "blockstates/"+base.getPath()+".json");
 	}
 }

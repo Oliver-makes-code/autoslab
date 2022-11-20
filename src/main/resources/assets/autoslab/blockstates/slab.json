@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "type=bottom,east=false": {
+      "model": "autoslab:block/slab_north_bottom"
+    },
+    "type=bottom,east=true": {
+      "model": "autoslab:block/slab_east_bottom"
+    },
+    "type=double": {
+      "model": "minecraft:block/all"
+    },
+    "type=top,east=false": {
+      "model": "autoslab:block/slab_north_top"
+    },
+    "type=top,east=true": {
+      "model": "autoslab:block/slab_east_top"
+    }
+  }
+}
